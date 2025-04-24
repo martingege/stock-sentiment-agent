@@ -109,6 +109,13 @@
         <p><strong>Sentiment Summary:</strong> {{ news_sentiment }}</p>
       </div>
     {% endif %}
+
+    {% if earnings_digest %}
+        <div class="section">
+            <h2>📊 Earnings Report Digest</h2>
+            <p>{{ earnings_digest }}</p>
+        </div>
+    {% endif %}
   </div>
 </body>
 </html>
