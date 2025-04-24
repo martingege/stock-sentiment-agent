@@ -1,64 +1,63 @@
-# Stock Sentiment Agent
+# 🧠 Stock Sentiment Agent
 
-This project is designed to build an agentic system that pulls news articles and analyzes the sentiment regarding company stocks using LangChain.
+A personalized stock analysis web app that leverages GPT-4, real-time market data, news sentiment, and earnings reports to help investors make smarter decisions in plain English.
 
-## Project Structure
+---
 
-```
-stock-sentiment-agent
-├── src
-│   ├── agents
-│   │   ├── __init__.py
-│   │   ├── news_agent.py
-│   │   └── sentiment_agent.py
-│   ├── tools
-│   │   ├── __init__.py
-│   │   ├── news_fetcher.py
-│   │   └── sentiment_analyzer.py
-│   └── main.py
-├── tests
-│   └── __init__.py
-├── .env
-├── requirements.txt
-└── README.md
-```
+## 🔍 Features
 
-## Setup Instructions
+- **📈 Stock Trend Insight**  
+  Pulls 3-month historical price data and calculates a 20-day moving average to offer simple buy/sell/hold recommendations.
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd stock-sentiment-agent
-   ```
+- **🤖 GPT-Powered Investment Explanations**  
+  Uses OpenAI’s GPT-4 to explain technical trends in plain, beginner-friendly language.
 
-2. **Create a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
+- **📰 News Sentiment Analysis**  
+  Fetches the latest headlines using NewsAPI and summarizes sentiment using GPT.
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+- **📊 Visual Price Charts**  
+  Shows interactive stock charts with moving averages.
 
-4. **Set up environment variables:**
-   Create a `.env` file in the root directory and add your API keys for news and sentiment analysis services.
+- **📆 Earnings Digest (via Finnhub.io)**  
+  Provides layman-friendly summaries of quarterly earnings reports, highlights EPS surprises, and lists the next earnings date.
 
-## Usage
+- **🌓 Light/Dark Theme Toggle**  
+  Easily switch between a Credit Karma–style interface and a cyberpunk visual theme.
 
-To run the application, execute the following command:
+---
+
+## 🧪 Tech Stack
+
+- Python 3.11
+- Flask (Web framework)
+- yfinance (price data)
+- Finnhub.io (earnings data) https://finnhub.io/docs/api
+- matplotlib (chart rendering)
+- OpenAI GPT-4 (financial explanations)
+- NewsAPI (news headlines)
+- HTML + Jinja2 + CSS (for UI and theming)
+
+---
+
+## 🚀 Run Locally
+
+### 1. Clone the repo
 
 ```bash
-python src/main.py
-```
+git clone git@github.com:martingege/stock-sentiment-agent.git
+cd stock-sentiment-agent
 
-This will initialize the agents, fetch news articles related to a specified company, and analyze the sentiment of those articles.
+### 2. Install
+pip install -r requirements.txt
 
-## Contributing
+### 3. Set your API keys
+OPENAI_API_KEY=your_openai_key_here
+NEWS_API_KEY=your_newsapi_key_here
+FINNHUB_API_KEY=your_finnhub_key_here
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+### 4. Run the app
+python src/web_host/app.py
 
-## License
+Then open http://127.0.0.1:5000 in your browser.
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+

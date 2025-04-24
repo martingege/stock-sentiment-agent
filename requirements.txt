@@ -1,5 +1,8 @@
-LangChain
+Flask
+yfinance
 requests
-nltk
-textblob
+matplotlib
+openai
+markdown
 python-dotenv
+pandas
