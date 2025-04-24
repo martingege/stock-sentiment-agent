@@ -189,6 +189,10 @@ def index():
     moving_avg = None
     chart = None
     ticker = ""
+    news_headlines = None
+    news_sentiment = None
+    earnings_digest = None
+    earnings_info = None
 
     if request.method == 'POST':
         ticker = request.form['ticker'].upper()
