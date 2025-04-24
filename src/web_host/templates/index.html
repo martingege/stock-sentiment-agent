@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Advisor</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input[type="text"] { padding: 8px; width: 200px; }
+        button { padding: 8px 12px; }
+        .result { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        img { margin-top: 20px; max-width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>📊 Simple Stock Advisor</h1>
+    <form method="POST">
+        <label for="ticker">Enter stock ticker:</label>
+        <input type="text" name="ticker" id="ticker" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if recommendation %}
+        <div class="result">
+            <h2>Results for {{ ticker }}</h2>
+            <p><strong>Current Price:</strong> ${{ current_price }}</p>
+            <p><strong>20-day Moving Average:</strong> ${{ moving_avg }}</p>
+            <p><strong>Recommendation:</strong> {{ recommendation }}</p>
+            <p><strong>Why:</strong></p> 
+            <div>{{ explanation|safe }}</div>
+            {% if chart %}
+                <img src="data:image/png;base64,{{ chart }}" alt="Stock Chart">
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if news_headlines %}
+    <div class="result">
+        <h3>📰 Recent News Headlines for {{ ticker }}</h3>
+        <ul>
+            {% for headline in news_headlines %}
+                <li>{{ headline }}</li>
+            {% endfor %}
+        </ul>
+        <p><strong>Sentiment Summary:</strong> {{ news_sentiment }}</p>
+    </div>
+{% endif %}
+</body>
+</html>

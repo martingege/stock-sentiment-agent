@@ -1,0 +1,5 @@
+LangChain
+requests
+nltk
+textblob
+python-dotenv

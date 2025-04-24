@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Stock Sentinel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #0f0f1b;
+      color: #00f7ff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 20px;
+    }
+
+    h1, h2, h3 {
+      color: #ff00e0;
+      text-shadow: 0 0 8px #ff00e0;
+    }
+
+    input, button {
+      font-family: inherit;
+      background-color: #1a1a2e;
+      border: 1px solid #ff00e0;
+      color: #00f7ff;
+      padding: 10px;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #ff00e0;
+      color: black;
+      cursor: pointer;
+    }
+
+    .section {
+      background-color: #1a1a2e;
+      border: 1px solid #00f7ff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 0 15px #00f7ff66;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #00f7ff;
+    }
+
+    ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    .highlight {
+      color: #fffb00;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Stock Sentinel</h1>
+    <form method="POST">
+      <label for="ticker">Enter stock ticker:</label>
+      <input type="text" name="ticker" id="ticker" required>
+      <button type="submit">Analyze</button>
+    </form>
+
+    {% if recommendation %}
+      <div class="section">
+        <h2>📈 Price Overview ({{ ticker }})</h2>
+        <p><strong>Current Price:</strong> <span class="highlight">${{ current_price }}</span></p>
+        <p><strong>20-day Moving Average:</strong> <span class="highlight">${{ moving_avg }}</span></p>
+        <p><strong>AI Recommendation:</strong> {{ recommendation }}</p>
+      </div>
+
+      <div class="section">
+        <h2>🤖 GPT Investment Insight</h2>
+        <div>{{ explanation|safe }}</div>
+      </div>
+
+      <div class="section">
+        <h2>📊 Price & Trend Chart</h2>
+        {% if chart %}
+          <img src="data:image/png;base64,{{ chart }}" alt="Stock Chart">
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if news_headlines %}
+      <div class="section">
+        <h2>📰 News & Sentiment</h2>
+        <ul>
+          {% for headline in news_headlines %}
+            <li>{{ headline }}</li>
+          {% endfor %}
+        </ul>
+        <p><strong>Sentiment Summary:</strong> {{ news_sentiment }}</p>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
