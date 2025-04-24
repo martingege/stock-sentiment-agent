@@ -81,7 +81,8 @@ def gpt_explanation(ticker, current_price, moving_avg):
         f"The stock ticker is {ticker}. Its current price is ${current_price:.2f} "
         f"and its 20-day moving average is ${moving_avg:.2f}. "
         f"Generate a short investment analysis for a beginner investor and explain why they should "
-        f"consider buying, selling, or holding."
+        f"consider buying, selling, or holding. "
+        f"answer it within 1000 tokens. make it markdown formatted."
     )
 
     try:
@@ -91,7 +92,7 @@ def gpt_explanation(ticker, current_price, moving_avg):
             {"role": "user", "content": prompt}
         ],
         temperature=0.7,
-        max_tokens=200)
+        max_tokens=1200)
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"⚠️ Error generating explanation: {str(e)}"
@@ -146,7 +147,7 @@ def analyze_news_sentiment(headlines):
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=250
+            max_tokens=500
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -162,17 +163,19 @@ def generate_earnings_digest(ticker, earnings_info):
         f"with a surprise of {earnings_info['surprise']:.2f}. "
         f"Explain what this means for an average investor in simple terms. Also mention if the stock usually reacts to such surprises, "
         f"and give the date for the next earnings report: {earnings_info['next_earnings']}."
+        f"Answer it within 2000 tokens."
+
     )
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You're a financial analyst who explains things clearly for average people."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.6,
-            max_tokens=300
+            max_tokens=2000
         )
         return response.choices[0].message.content.strip()
     except Exception as e:

@@ -126,15 +126,15 @@
       </div>
 
       <div class="section">
-        <h2>🤖 GPT Explanation</h2>
-        <div class="preformatted">{{ explanation|safe }}</div>
-      </div>
-
-      <div class="section">
         <h2>📊 Trend Chart</h2>
         {% if chart %}
           <img src="data:image/png;base64,{{ chart }}" alt="Stock Chart">
         {% endif %}
+      </div>
+
+      <div class="section">
+        <h2>🤖 Agent Explanation</h2>
+        <div class="preformatted">{{ explanation|safe }}</div>
       </div>
     {% endif %}
 
