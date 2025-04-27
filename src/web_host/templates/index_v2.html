@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Insight Agent</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    header {
+      background-color: #0066cc;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .container {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #0066cc;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #004a99;
+    }
+    .button {
+      width: 100%;
+      padding: 10px;
+      background-color: #004a99;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #003366;
+    }
+    .chart-img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>Stock Insight Agent</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Enter Stock Ticker</h2>
+    <form method="POST">
+      <input type="text" name="ticker" placeholder="e.g., AAPL" required style="width:100%; padding:10px; margin-top:10px;">
+      <button type="submit" class="button">Analyze</button>
+    </form>
+  </div>
+
+  {% if ticker %}
+  <div class="card">
+    <h2>🔍 Summary for {{ ticker }}</h2>
+    <ul>
+      <li><span class="highlight">Current Price:</span> ${{ current_price }}</li>
+      <li><span class="highlight">20-Day Moving Average:</span> ${{ moving_avg }}</li>
+      <li><span class="highlight">RSI:</span> {{ rsi }}</li>
+      <li><span class="highlight">Volume Spike:</span> {{ volume_spike }}</li>
+      <li><span class="highlight">Latest Volume:</span> {{ latest_volume }}</li>
+      <li><span class="highlight">10-Day Avg Volume:</span> {{ avg_volume }}</li>
+      <li><span class="highlight">Recommendation:</span> {{ recommendation }}</li>
+      <li><span class="highlight">Confidence Score:</span> {{ confidence_score }}%</li>
+    </ul>
+    {% if chart %}
+      <img src="data:image/png;base64,{{ chart }}" class="chart-img" alt="Stock Chart">
+    {% endif %}
+  </div>
+
+  {% if explanation %}
+  <div class="card">
+    <h2>💡 AI Investment Explanation</h2>
+    <div>{{ explanation|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if news_sentiment %}
+  <div class="card">
+    <h2>📰 Latest News Sentiment</h2>
+    <div>{{ news_sentiment|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if earnings_info %}
+  <div class="card">
+    <h2>📈 Earnings Summary</h2>
+    <ul>
+      <li><strong>Latest Earnings Date:</strong> {{ earnings_info.latest_date }}</li>
+      <li><strong>Expected EPS:</strong> {{ earnings_info.expected_eps }}</li>
+      <li><strong>Actual EPS:</strong> {{ earnings_info.actual_eps }}</li>
+      <li><strong>Surprise:</strong> {{ earnings_info.surprise }}</li>
+      <li><strong>Next Earnings Date:</strong> {{ earnings_info.next_earnings }}</li>
+    </ul>
+    <div>{{ earnings_digest|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if short_term_signals %}
+  <div class="card">
+    <h2>📊 Short-Term Trade Signals</h2>
+    <pre>{{ short_term_signals }}</pre>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+</div>
+
+</body>
+</html>
