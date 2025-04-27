@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Insight Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style id="theme-style">
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e0f2f1, #f0f4c3);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      background: #0066cc;
+      color: white;
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease;
+    }
+    h2 {
+      margin-top: 0;
+      color: #0066cc;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    button, select, input[type="text"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004999;
+    }
+    img.chart-img {
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  Stock Sensei Agent
+  <br>
+  <select id="theme-selector" onchange="changeTheme()" style="margin-top:10px;">
+    <option value="default">Default</option>
+    <option value="credit-karma">Credit Karma</option>
+    <option value="cyberpunk">Cyberpunk</option>
+    <option value="dark">Dark Mode</option>
+    <option value="ocean">Ocean Breeze</option>
+  </select>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Enter Ticker</h2>
+    <form method="POST">
+      <input type="text" name="ticker" placeholder="e.g., AAPL" required>
+      <button type="submit">Analyze</button>
+    </form>
+  </div>
+
+  {% if ticker %}
+  <div class="card">
+    <h2>📈 Stock Overview: {{ ticker }}</h2>
+    <ul>
+      <li>Current Price: ${{ current_price }}</li>
+      <li>20-Day Moving Average: ${{ moving_avg }}</li>
+      <li>RSI: {{ rsi }}</li>
+      <li>Volume Spike: {{ volume_spike }}</li>
+      <li>Latest Volume: {{ latest_volume }}</li>
+      <li>10-Day Avg Volume: {{ avg_volume }}</li>
+      <li>Recommendation: {{ recommendation }}</li>
+      <li>Confidence Score: {{ confidence_score }}%</li>
+    </ul>
+    {% if chart %}
+      <img src="data:image/png;base64,{{ chart }}" class="chart-img" alt="Stock Chart">
+    {% endif %}
+  </div>
+
+  {% if explanation %}
+  <div class="card">
+    <h2>🤖 AI Explanation</h2>
+    <div>{{ explanation|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if news_headlines %}
+  <div class="card">
+    <h2>📰 News Headlines</h2>
+    <ul>
+      {% for headline in news_headlines %}
+      <li>{{ headline }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if news_sentiment %}
+  <div class="card">
+    <h2>🧠 News Sentiment</h2>
+    <div>{{ news_sentiment|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if earnings_info %}
+  <div class="card">
+    <h2>📊 Earnings Overview</h2>
+    <ul>
+      <li>Latest Earnings Date: {{ earnings_info.latest_date }}</li>
+      <li>Expected EPS: {{ earnings_info.expected_eps }}</li>
+      <li>Actual EPS: {{ earnings_info.actual_eps }}</li>
+      <li>Surprise: {{ earnings_info.surprise }}</li>
+      <li>Next Earnings Date: {{ earnings_info.next_earnings }}</li>
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if earnings_digest %}
+  <div class="card">
+    <h2>📚 Earnings Digest</h2>
+    <div>{{ earnings_digest|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if short_term_signals %}
+  <div class="card">
+    <h2>🚀 Short-Term Signals</h2>
+    <div>{{ short_term_signals|safe }}</div>
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+
+<script>
+function changeTheme() {
+  const theme = document.getElementById('theme-selector').value;
+  const themeStyle = document.getElementById('theme-style');
+
+  const themes = {
+    default: `body { background: linear-gradient(135deg, #e0f2f1, #f0f4c3); } header { background: #0066cc; } h2 { color: #0066cc; }`,
+    "credit-karma": `body { background: linear-gradient(135deg, #e9f5ee, #c8e6c9); } header { background: #00a86b; } h2 { color: #00a86b; }`,
+    "cyberpunk": `body { background: linear-gradient(135deg, #0d0d0d, #1a0033); color: #39ff14; } header { background: #ff0080; } h2 { color: #39ff14; }`,
+    "dark": `body { background: linear-gradient(135deg, #1c1c1c, #2e2e2e); color: #e0e0e0; } header { background: #222; } h2 { color: #90caf9; }`,
+    "ocean": `body { background: linear-gradient(135deg, #e0f7fa, #b2ebf2); } header { background: #006064; } h2 { color: #006064; }`
+  };
+
+  themeStyle.innerHTML = themeStyle.innerHTML.split('/*split*/')[0] + themes[theme];
+}
+</script>
+
+</body>
+</html>

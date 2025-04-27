@@ -3,139 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stock Insight Agent</title>
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-    header {
-      background-color: #0066cc;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      border-radius: 8px;
-    }
-    .container {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #0066cc;
-    }
-    ul {
-      padding-left: 20px;
-    }
-    .highlight {
-      font-weight: bold;
-      color: #004a99;
-    }
-    .button {
-      width: 100%;
-      padding: 10px;
-      background-color: #004a99;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-    .button:hover {
-      background-color: #003366;
-    }
-    .chart-img {
-      width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
+  <title>Stock Sentiment Agent</title>
+  <style id="theme-style">
+    body { background-color: #f5f7fa; color: #333; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    header { background-color: #0066cc; color: white; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; }
+    .card { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h2 { color: #0066cc; }
   </style>
 </head>
+
 <body>
 
-<header>Stock Insight Agent</header>
+<header>
+  Stock Sentiment Agent
+</header>
 
-<div class="container">
-
-  <div class="card">
-    <h2>Enter Stock Ticker</h2>
-    <form method="POST">
-      <input type="text" name="ticker" placeholder="e.g., AAPL" required style="width:100%; padding:10px; margin-top:10px;">
-      <button type="submit" class="button">Analyze</button>
-    </form>
-  </div>
-
-  {% if ticker %}
-  <div class="card">
-    <h2>🔍 Summary for {{ ticker }}</h2>
-    <ul>
-      <li><span class="highlight">Current Price:</span> ${{ current_price }}</li>
-      <li><span class="highlight">20-Day Moving Average:</span> ${{ moving_avg }}</li>
-      <li><span class="highlight">RSI:</span> {{ rsi }}</li>
-      <li><span class="highlight">Volume Spike:</span> {{ volume_spike }}</li>
-      <li><span class="highlight">Latest Volume:</span> {{ latest_volume }}</li>
-      <li><span class="highlight">10-Day Avg Volume:</span> {{ avg_volume }}</li>
-      <li><span class="highlight">Recommendation:</span> {{ recommendation }}</li>
-      <li><span class="highlight">Confidence Score:</span> {{ confidence_score }}%</li>
-    </ul>
-    {% if chart %}
-      <img src="data:image/png;base64,{{ chart }}" class="chart-img" alt="Stock Chart">
-    {% endif %}
-  </div>
-
-  {% if explanation %}
-  <div class="card">
-    <h2>💡 AI Investment Explanation</h2>
-    <div>{{ explanation|safe }}</div>
-  </div>
-  {% endif %}
-
-  {% if news_sentiment %}
-  <div class="card">
-    <h2>📰 Latest News Sentiment</h2>
-    <div>{{ news_sentiment|safe }}</div>
-  </div>
-  {% endif %}
-
-  {% if earnings_info %}
-  <div class="card">
-    <h2>📈 Earnings Summary</h2>
-    <ul>
-      <li><strong>Latest Earnings Date:</strong> {{ earnings_info.latest_date }}</li>
-      <li><strong>Expected EPS:</strong> {{ earnings_info.expected_eps }}</li>
-      <li><strong>Actual EPS:</strong> {{ earnings_info.actual_eps }}</li>
-      <li><strong>Surprise:</strong> {{ earnings_info.surprise }}</li>
-      <li><strong>Next Earnings Date:</strong> {{ earnings_info.next_earnings }}</li>
-    </ul>
-    <div>{{ earnings_digest|safe }}</div>
-  </div>
-  {% endif %}
-
-  {% if short_term_signals %}
-  <div class="card">
-    <h2>📊 Short-Term Trade Signals</h2>
-    <pre>{{ short_term_signals }}</pre>
-  </div>
-  {% endif %}
-
-  {% endif %}
-
+<div style="text-align:center; margin:10px 0;">
+  <select id="theme-selector" onchange="changeTheme()" style="padding:8px;">
+    <option value="default">Default</option>
+    <option value="credit-karma">Credit Karma</option>
+    <option value="cyberpunk">Cyberpunk</option>
+    <option value="dark">Dark Mode</option>
+    <option value="ocean">Ocean Breeze</option>
+  </select>
 </div>
+
+<div class="card">
+  <h2>Stock: {{ ticker }}</h2>
+  {% if recommendation %}<p><strong>Recommendation:</strong> {{ recommendation }}</p>{% endif %}
+  {% if current_price %}<p><strong>Current Price:</strong> ${{ "%.2f"|format(current_price) }}</p>{% endif %}
+  {% if moving_avg %}<p><strong>20-Day Moving Average:</strong> ${{ "%.2f"|format(moving_avg) }}</p>{% endif %}
+  {% if rsi %}<p><strong>RSI:</strong> {{ "%.2f"|format(rsi) }}</p>{% endif %}
+  {% if volume_spike is not none %}<p><strong>Volume Spike:</strong> {{ volume_spike }}</p>{% endif %}
+  {% if latest_volume %}<p><strong>Latest Volume:</strong> {{ latest_volume }}</p>{% endif %}
+  {% if avg_volume %}<p><strong>10-Day Average Volume:</strong> {{ avg_volume }}</p>{% endif %}
+  {% if confidence_score %}<p><strong>Confidence Score:</strong> {{ confidence_score }}%</p>{% endif %}
+</div>
+
+{% if explanation %}
+<div class="card">
+  <h2>Technical Explanation</h2>
+  <div>{{ explanation|safe }}</div>
+</div>
+{% endif %}
+
+{% if chart %}
+<div class="card">
+  <h2>Price Chart</h2>
+  <img src="data:image/png;base64,{{ chart }}" alt="Price Chart" style="max-width:100%;">
+</div>
+{% endif %}
+
+{% if news_headlines %}
+<div class="card">
+  <h2>News Headlines</h2>
+  <ul>
+    {% for headline in news_headlines %}
+    <li>{{ headline }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if news_sentiment %}
+<div class="card">
+  <h2>News Sentiment Analysis</h2>
+  <div>{{ news_sentiment|safe }}</div>
+</div>
+{% endif %}
+
+{% if earnings_info %}
+<div class="card">
+  <h2>Earnings Information</h2>
+  <p><strong>Next Earnings Date:</strong> {{ earnings_info.next_earnings }}</p>
+  <p><strong>Latest Earnings Date:</strong> {{ earnings_info.latest_date }}</p>
+  <p><strong>Actual EPS:</strong> {{ earnings_info.actual_eps }}</p>
+  <p><strong>Expected EPS:</strong> {{ earnings_info.expected_eps }}</p>
+  <p><strong>Surprise:</strong> {{ earnings_info.surprise }}</p>
+</div>
+{% endif %}
+
+{% if earnings_digest %}
+<div class="card">
+  <h2>Earnings Digest</h2>
+  <div>{{ earnings_digest|safe }}</div>
+</div>
+{% endif %}
+
+{% if short_term_signals %}
+<div class="card">
+  <h2>Short-Term Signals</h2>
+  <div>{{ short_term_signals|safe }}</div>
+</div>
+{% endif %}
+
+<script>
+function changeTheme() {
+  const theme = document.getElementById('theme-selector').value;
+  const themeStyle = document.getElementById('theme-style');
+
+  const themes = {
+    default: `
+      body { background-color: #f5f7fa; color: #333; }
+      header { background-color: #0066cc; }
+      .card { background: white; }
+      h2 { color: #0066cc; }
+    `,
+    "credit-karma": `
+      body { background-color: #e9f5ee; color: #034d21; }
+      header { background-color: #00a86b; }
+      .card { background: #ffffff; border: 1px solid #b0e0c9; }
+      h2 { color: #00a86b; }
+    `,
+    "cyberpunk": `
+      body { background-color: #0d0d0d; color: #39ff14; }
+      header { background-color: #ff0080; }
+      .card { background: #1a1a1a; border: 1px solid #ff0080; }
+      h2 { color: #39ff14; }
+    `,
+    "dark": `
+      body { background-color: #121212; color: #e0e0e0; }
+      header { background-color: #222; }
+      .card { background: #1e1e1e; }
+      h2 { color: #90caf9; }
+    `,
+    "ocean": `
+      body { background-color: #e0f7fa; color: #00796b; }
+      header { background-color: #006064; }
+      .card { background: #ffffff; border: 1px solid #80deea; }
+      h2 { color: #006064; }
+    `
+  };
+
+  themeStyle.innerHTML = themes[theme];
+}
+</script>
 
 </body>
 </html>

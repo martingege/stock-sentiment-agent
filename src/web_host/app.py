@@ -24,7 +24,7 @@ app = Flask(__name__)
 
 # Configurations Variables
 use_ai = True  # Set to False to disable AI features
-model = "gpt-4o-mini"  # Use the latest model for better performance
+model = "gpt-4o"  # Use the latest model for better performance
 
 # Prompt Config
 # Common HTML formatting instruction for LLM prompts
@@ -33,9 +33,6 @@ common_html_instruction = (
     "Structure the response into clear sections as requested.\n"
     "Do NOT include any <html>, <head>, or <body> tags. Keep it clean for embedding.\n\n"
 )
-
-
-
 
 # Seciont 1: Short Term Indicators and Recommendations
 def get_stock_data(ticker):
@@ -145,7 +142,7 @@ def analyze_news_sentiment(headlines):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model=model,
             messages=[
                 {"role": "system", "content": "You are a financial assistant."},
                 {"role": "user", "content": prompt}
@@ -214,7 +211,7 @@ def generate_earnings_digest(ticker, earnings_info):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=[
                 {"role": "system", "content": "You're a financial analyst who explains things clearly for average people."},
                 {"role": "user", "content": prompt}
@@ -312,7 +309,7 @@ def index():
 
 
     return render_template(
-        'index_mixed.html',
+        'index_modern.html',
         ticker=ticker,
         recommendation=recommendation,
         current_price=current_price,
