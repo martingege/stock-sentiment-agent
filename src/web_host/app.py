@@ -12,6 +12,8 @@ import os
 import pandas_ta as ta
 from openai import OpenAI
 import requests
+import csv
+from datetime import datetime
 
 # Environment variables
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")  # store this in your .env
@@ -23,6 +25,17 @@ app = Flask(__name__)
 # Configurations Variables
 use_ai = True  # Set to False to disable AI features
 model = "gpt-4o-mini"  # Use the latest model for better performance
+
+# Prompt Config
+# Common HTML formatting instruction for LLM prompts
+common_html_instruction = (
+    "Use only basic HTML tags like <h3>, <p>, <ul>, and <li>.\n"
+    "Structure the response into clear sections as requested.\n"
+    "Do NOT include any <html>, <head>, or <body> tags. Keep it clean for embedding.\n\n"
+)
+
+
+
 
 # Seciont 1: Short Term Indicators and Recommendations
 def get_stock_data(ticker):
@@ -57,12 +70,11 @@ def gpt_explanation(ticker, current_price, moving_avg, rsi, latest_volume, avg_v
         f"- 10-Day Average Volume: {avg_volume:.0f}\n"
         f"- Recommendation based on short-term technical indicators: {recommendation}\n"
         f"- Confidence Score: {confidence_score}%\n\n"
-        f"Organize your explanation clearly using basic HTML tags only (<h3>, <p>, <ul>, <li>). "
+        f"{common_html_instruction}"
         f"Structure your output like this:\n"
         f"1. <h3>Overview</h3> – Introduce the company briefly.\n"
         f"2. <h3>Current Technical Overview</h3> – Explain price vs moving average, RSI, and volume trends.\n"
         f"3. <h3>Recommendation and Confidence</h3> – Explain the recommendation (BUY/SELL/HOLD) and what the confidence score implies.\n\n"
-        f"Do NOT include any <html>, <head>, or <body> tags. Keep it clean for embedding."
     )
 
     try:
@@ -75,13 +87,30 @@ def gpt_explanation(ticker, current_price, moving_avg, rsi, latest_volume, avg_v
             temperature=0.7,
             max_tokens=1200
         )
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content.strip()
+        data_blob = {
+            "ticker": ticker,
+            "current_price": current_price,
+            "moving_avg": moving_avg,
+            "rsi": rsi,
+            "latest_volume": latest_volume,
+            "avg_volume": avg_volume,
+            "recommendation": recommendation,
+            "confidence_score": confidence_score
+        }
+        log_llm_usage(
+            use_case="indicator",
+            data_blob=data_blob,
+            prompt_template=prompt,
+            model_used=model,
+            llm_reply=content
+        )
+        return content
     except Exception as e:
         return f"⚠️ Error generating explanation: {str(e)}"
 
 # Section 2: News Headlines and Sentiment Analysis
 def fetch_news_headlines(ticker):
-    print("API Key:", NEWS_API_KEY)  # ✅ Debug line
     params = {
         "q": ticker,
         "sortBy": "publishedAt",
@@ -103,16 +132,15 @@ def analyze_news_sentiment(headlines):
 
     prompt = (
         "You are a financial assistant. Analyze the overall sentiment (positive, negative, or neutral) "
-        "of the following news headlines about a stock and provide a structured HTML explanation.\n\n"
-        "Use only basic HTML tags like <h3>, <p>, <ul>, and <li>.\n\n"
+        "of the following news headlines about a stock and provide a structured explanation.\n\n"
+        "News Headlines:\n" +
+        "\n".join(f"- {h}" for h in headlines) + 
+        # f"{common_html_instruction}"
         "Structure the output as:\n"
         "1. <h3>Overview</h3> – Summarize the overall news tone and themes.\n"
         "2. <h3>Sentiment Summary</h3> – Was the sentiment mostly positive, negative, or neutral?\n"
         "3. <h3>Recommendation</h3> – Based on the news, should the user consider BUY, SELL, or HOLD? "
         "Include a confidence score (high/medium/low) and a brief reasoning.\n\n"
-        "Do not include any <html>, <head>, or <body> tags.\n\n"
-        "News Headlines:\n" +
-        "\n".join(f"- {h}" for h in headlines)
     )
 
     try:
@@ -125,7 +153,9 @@ def analyze_news_sentiment(headlines):
             temperature=0.7,
             max_tokens=500
         )
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content.strip()
+        log_llm_usage(use_case="news", data_blob="\n".join(headlines), prompt_template=prompt, model_used="gpt-4", llm_reply=content)
+        return content
     except Exception as e:
         return f"⚠️ Error generating sentiment: {str(e)}"
 
@@ -168,19 +198,18 @@ def generate_earnings_digest(ticker, earnings_info):
         return "No recent earnings report available."
 
     prompt = (
-        f"Generate an easy-to-understand HTML explanation for a stock's earnings report for ticker {ticker}.\n\n"
+        f"Generate an easy-to-understand explanation for a stock's earnings report for ticker {ticker}.\n\n"
         f"Use the following data:\n"
         f"- Latest earnings date: {earnings_info['latest_date']}\n"
         f"- Expected EPS: {earnings_info['expected_eps']}\n"
         f"- Actual EPS: {earnings_info['actual_eps']}\n"
         f"- Surprise: {earnings_info['surprise']:.2f}\n"
         f"- Next earnings date: {earnings_info['next_earnings']}\n\n"
-        f"Organize the explanation using simple HTML tags only (<h3>, <p>, <ul>, <li>). "
+        f"{common_html_instruction}"
         f"Structure the response into these sections:\n"
         f"1. <h3>Summary</h3> – What happened in this earnings report.\n"
         f"2. <h3>Impact on Stock</h3> – How such earnings surprises usually affect the stock.\n"
         f"3. <h3>Recommendation</h3> – Should the user consider Buy, Hold, or Sell based on this report (explain simply)?\n\n"
-        f"Do not include any <html>, <head>, or <body> tags."
     )
 
     try:
@@ -193,10 +222,39 @@ def generate_earnings_digest(ticker, earnings_info):
             temperature=0.6,
             max_tokens=2000
         )
-        return response.choices[0].message.content.strip()
+
+        content = response.choices[0].message.content.strip()
+        log_llm_usage(use_case="earnings", data_blob=earnings_info, prompt_template=prompt, model_used="gpt-4o", llm_reply=content)
+        return content
     except Exception as e:
         return f"⚠️ Error generating earnings digest: {e}"
 
+# LLM Usage Logging
+def log_llm_usage(use_case, data_blob, prompt_template, model_used, llm_reply):
+    """
+    Logs LLM usage details into a CSV file for tracking and analysis.
+    """
+    log_file_path = os.path.join(os.path.dirname(__file__), "../../llm_usage_log.csv")
+    log_file_path = os.path.abspath(log_file_path)
+
+    headers = ["timestamp", "use_case", "data_blob", "prompt_template", "model_used", "llm_reply"]
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    # Check if file exists to determine if headers are needed
+    file_exists = os.path.isfile(log_file_path)
+
+    with open(log_file_path, mode="a", newline='', encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow({
+            "timestamp": timestamp,
+            "use_case": use_case,
+            "data_blob": data_blob,
+            "prompt_template": prompt_template,
+            "model_used": model_used,
+            "llm_reply": llm_reply
+        })
 
 # Flask app setup
 @app.route('/', methods=['GET', 'POST'])
@@ -249,7 +307,6 @@ def index():
         
         # Generate long-term signals
         earnings_info = get_earnings_info(ticker)
-        print("Earnings Info:", earnings_info)  # Debug line
         if use_ai and earnings_info:
             earnings_digest = generate_earnings_digest(ticker, earnings_info)
 
