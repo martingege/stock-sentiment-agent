@@ -60,10 +60,18 @@ def gather_indicators(ticker):
 
     moving_avg = calculate_moving_average(df)
     rsi = calculate_rsi(df)
+
+    # Force scalar values for current price and moving average
+    current_price = df['Close'].iloc[-1]
+    if hasattr(current_price, 'item'):
+        current_price = current_price.item()
+    if hasattr(moving_avg, 'item'):
+        moving_avg = moving_avg.item()
+
     volume_spike, latest_volume, avg_volume = check_volume_spike(df)
 
     indicators = {
-        'current_price': df['Close'].iloc[-1],
+        'current_price': current_price,
         'moving_avg': moving_avg,
         'rsi': rsi,
         'volume_spike': volume_spike,
