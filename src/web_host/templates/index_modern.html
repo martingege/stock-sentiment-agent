@@ -105,7 +105,7 @@
 
   {% if ticker %}
   <div class="card">
-    <h2>📈 Stock Overview: {{ ticker }}</h2>
+    <h2>📈 Stock Key Indicator Overview: {{ ticker }}</h2>
     <ul>
       <li>Current Price: ${{ current_price }}</li>
       <li>20-Day Moving Average: ${{ moving_avg }}</li>
@@ -123,7 +123,7 @@
 
   {% if explanation %}
   <div class="card">
-    <h2>🤖 AI Explanation</h2>
+    <h2>🤖 Indicator Technical Analysis</h2>
     <div>{{ explanation|safe }}</div>
   </div>
   {% endif %}
@@ -141,7 +141,7 @@
 
   {% if news_sentiment %}
   <div class="card">
-    <h2>🧠 News Sentiment</h2>
+    <h2>🤖 News Sentiment Analysis</h2>
     <div>{{ news_sentiment|safe }}</div>
   </div>
   {% endif %}
@@ -161,7 +161,7 @@
 
   {% if earnings_digest %}
   <div class="card">
-    <h2>📚 Earnings Digest</h2>
+    <h2>🤖 Earnings Digest Analysis</h2>
     <div>{{ earnings_digest|safe }}</div>
   </div>
   {% endif %}
@@ -176,7 +176,7 @@
   {% if final_decision %}
   <div class="card">
     <h2>🚀 Final Stock Recommendation</h2>
-    <p><strong>Decision:</strong> {{ final_decision }}</p>
+    <h3>Decision:</strong> {{ final_decision }}</h3>
   
     <div style="margin:20px 0;">
       <h3>Confidence Level</h3>
@@ -191,6 +191,12 @@
       <h3>Explanation</h3>
       <div>{{ final_decision_explanation|safe }}</div>
     </div>
+
+    <div style="margin:20px 0;">
+      <a href="{{ robinhood_url }}" target="_blank">
+        <button style="background-color:#0066cc; padding:12px 20px; border-radius:10px; font-size:16px; font-weight:600;">Trade on Robinhood</button>
+      </a>
+    </div>  
   </div>
   {% endif %}    
   {% endif %}

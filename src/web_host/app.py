@@ -257,9 +257,6 @@ def final_stock_action(ticker, technical_explanation, news_sentiment_explanation
 
         Be objective, and act as a rational financial advisor helping a beginner investor.
         """
-    
-    print("prompt", prompt, "\n\n")
-
     try:
         response = client.chat.completions.create(
             model=model,
@@ -278,6 +275,13 @@ def final_stock_action(ticker, technical_explanation, news_sentiment_explanation
             reply_text = reply_text.strip()
 
         result = json.loads(reply_text)
+
+        data_blob = {
+            "technical_explanation": technical_explanation, 
+            "news_sentiment_explanation": news_sentiment_explanation, 
+            "earnings_digest_explanation": earnings_digest_explanation
+        }
+        log_llm_usage(use_case="final", data_blob=data_blob, prompt_template=prompt, model_used=model, llm_reply=reply_text)
         return result["final_decision"], result["confidence_score"], result["explanation"]
 
     except Exception as e:
@@ -369,8 +373,7 @@ def index():
 
         # Generate final recommendation
         final_decision, final_confidence_score, final_decision_explanation = final_stock_action(ticker, explanation, news_sentiment, earnings_digest)
-
-        print("final data sets", final_decision, final_confidence_score, final_decision_explanation )
+        robinhood_url = f"https://robinhood.com/stocks/{ticker.upper()}"
 
 
     return render_template(
@@ -393,7 +396,8 @@ def index():
         short_term_signals=short_term_signals,
         final_decision = final_decision,
         final_confidence_score = final_confidence_score,
-        final_decision_explanation = final_decision_explanation
+        final_decision_explanation = final_decision_explanation,
+        robinhood_url = robinhood_url
     )
 
 if __name__ == '__main__':
