@@ -14,6 +14,9 @@ from openai import OpenAI
 import requests
 import csv
 from datetime import datetime
+import json
+import re
+
 
 # Environment variables
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")  # store this in your .env
@@ -183,7 +186,7 @@ def get_earnings_info(ticker):
             "latest_date": latest_date,
             "actual_eps": actual_eps,
             "expected_eps": expected_eps,
-            "surprise": surprise
+            "surprise": round(surprise, 4)
         }
 
     except Exception as e:
@@ -225,6 +228,62 @@ def generate_earnings_digest(ticker, earnings_info):
         return content
     except Exception as e:
         return f"⚠️ Error generating earnings digest: {e}"
+
+
+def final_stock_action(ticker, technical_explanation, news_sentiment_explanation, earnings_digest_explanation):
+    prompt = f"""
+        You are a financial assistant. Your job is to make a final stock recommendation based on the following inputs:
+
+        1. Technical Indicators Analysis:
+        {technical_explanation}
+
+        2. News Sentiment Analysis:
+        {news_sentiment_explanation}
+
+        3. Earnings Digest Analysis:
+        {earnings_digest_explanation}
+
+        Instructions:
+        - Analyze all 3 inputs carefully.
+        - Make a final recommendation: 'Buy', 'Hold', or 'Sell'.
+        - Assign a confidence score between 0% and 100% based on how strong the combined evidence is.
+        - Write a short explanation in easy, layman's terms why you made that decision.
+        - Only return a valid JSON in this exact format. No other text. like this:
+        {{
+        "final_decision": "Buy",
+        "confidence_score": 85,
+        "explanation": "Explain the rationale here..."
+        }}
+
+        Be objective, and act as a rational financial advisor helping a beginner investor.
+        """
+    
+    print("prompt", prompt, "\n\n")
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a helpful financial analyst."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=1200
+        )
+        reply_text = response.choices[0].message.content.strip()
+        # 🛡️ Sanitize reply if wrapped with ```json``` ... ```
+        if reply_text.startswith("```"):
+            reply_text = re.sub(r"```(?:json)?", "", reply_text)  # Remove opening ```
+            reply_text = reply_text.replace("```", "")             # Remove closing ```
+            reply_text = reply_text.strip()
+
+        result = json.loads(reply_text)
+        return result["final_decision"], result["confidence_score"], result["explanation"]
+
+    except Exception as e:
+        print(f"⚠️ Error in final_stock_action LLM call: {e}")
+        return "Hold", 50, "There was an error processing the final decision."
+
 
 # LLM Usage Logging
 def log_llm_usage(use_case, data_blob, prompt_template, model_used, llm_reply):
@@ -272,15 +331,16 @@ def index():
     latest_volume = None
     avg_volume = None
     confidence_score = None
+    final_decision = final_confidence_score = final_decision_explanation = None
 
     if request.method == 'POST':
         ticker = request.form['ticker'].upper()
         indicators = gather_indicators(ticker)
 
         if indicators:
-            current_price = indicators['current_price']
-            moving_avg = indicators['moving_avg']
-            rsi = indicators['rsi']
+            current_price = round(indicators['current_price'], 4)
+            moving_avg = round(indicators['moving_avg'], 4)
+            rsi = round(indicators['rsi'], 4)
             volume_spike = indicators['volume_spike']
             latest_volume = indicators['latest_volume']
             avg_volume = indicators['avg_volume']
@@ -307,6 +367,11 @@ def index():
         if use_ai and earnings_info:
             earnings_digest = generate_earnings_digest(ticker, earnings_info)
 
+        # Generate final recommendation
+        final_decision, final_confidence_score, final_decision_explanation = final_stock_action(ticker, explanation, news_sentiment, earnings_digest)
+
+        print("final data sets", final_decision, final_confidence_score, final_decision_explanation )
+
 
     return render_template(
         'index_modern.html',
@@ -325,7 +390,10 @@ def index():
         news_sentiment=news_sentiment,
         earnings_info=earnings_info,
         earnings_digest=earnings_digest,
-        short_term_signals=short_term_signals
+        short_term_signals=short_term_signals,
+        final_decision = final_decision,
+        final_confidence_score = final_confidence_score,
+        final_decision_explanation = final_decision_explanation
     )
 
 if __name__ == '__main__':
