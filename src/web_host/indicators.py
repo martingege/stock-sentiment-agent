@@ -49,6 +49,7 @@ def check_volume_spike(df, multiplier=1.5, window=10):
     else:
         return False, latest_volume, avg_volume    
 
+
 def gather_indicators(ticker):
     """
     Fetch all three key indicators: Moving Average, RSI, Volume Spike.
@@ -81,8 +82,49 @@ def gather_indicators(ticker):
 
     return indicators
 
+def calculate_confidence(price, moving_avg, rsi, latest_volume, avg_volume):
+    score = 0
+    
+    # Moving Average
+    if price > moving_avg:
+        score += 30
+    
+    # RSI
+    if 40 < rsi < 65:
+        score += 30
+    elif rsi < 30 and price < moving_avg:
+        score += 15  # Oversold + Downtrend = possible bounce
+    
+    # Volume
+    if latest_volume > 1.5 * avg_volume:
+        score += 40
+
+    return score
+
+def suggest_action_with_confidence(price, moving_avg, rsi, latest_volume, avg_volume):
+    confidence = calculate_confidence(price, moving_avg, rsi, latest_volume, avg_volume)
+
+    if price > moving_avg and 40 < rsi < 65 and latest_volume > 1.5 * avg_volume:
+        action = "📈 Suggest: BUY"
+    elif (price < moving_avg or rsi > 70) and latest_volume > 1.5 * avg_volume:
+        action = "📉 Suggest: SELL"
+    else:
+        action = "⏳ Suggest: HOLD"
+    
+    return action, confidence
+
+
 # Example usage:
 if __name__ == "__main__":
     ticker = "AAPL"
     indicators = gather_indicators(ticker)
     print(indicators)
+    suggest_action_with_confidence = suggest_action_with_confidence(
+        indicators['current_price'],
+        indicators['moving_avg'],
+        indicators['rsi'],
+        indicators['latest_volume'],
+        indicators['avg_volume']
+    )
+    print(suggest_action_with_confidence)
+    print(f"Action: {suggest_action_with_confidence[0]}, Confidence Score: {suggest_action_with_confidence[1]}")

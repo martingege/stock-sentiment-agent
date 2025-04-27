@@ -122,7 +122,12 @@
         <h2>📈 Price Snapshot for {{ ticker }}</h2>
         <p><span class="highlight">Current Price:</span> ${{ current_price }}</p>
         <p><span class="highlight">20-day Moving Average:</span> ${{ moving_avg }}</p>
+        <p><span class="highlight">RSI:</span> {{ rsi }}</p>
+        <p><span class="highlight">Volume Spike:</span> {{ volume_spike }}</p>
+        <p><span class="highlight">Latest Volume:</span> {{ latest_volume }}</p>
+        <p><span class="highlight">10-Day Avg Volume:</span> {{ avg_volume }}</p>
         <p><span class="highlight">Recommendation:</span> {{ recommendation }}</p>
+        <p><span class="highlight">Confidence Score:</span> {{ confidence_score }}%</p>
       </div>
 
       <div class="section">
@@ -133,10 +138,36 @@
       </div>
 
       <div class="section">
-        <h2>🤖 Agent Explanation</h2>
+        <h2>🤖 Stock Sensei Recommendation</h2>
         <div class="preformatted">{{ explanation|safe }}</div>
       </div>
     {% endif %}
+
+    {% if short_term_signals %}
+    <div class="section">
+      <h2>⚡ Short-Term Trading Signals</h2>
+      <ul style="line-height: 1.8;">
+        {% for key, value in short_term_signals.items() %}
+          <li><strong>{{ key }}:</strong> {{ value }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- 👇 Insert cheat sheet here -->
+    <div class="section">
+      <h2>📚 Stock Metrics Cheat Sheet</h2>
+      <ul style="line-height: 1.8;">
+        <li><strong>RSI (Relative Strength Index):</strong> Over 70 = overbought (🔻); Under 30 = oversold (🔺)</li>
+        <li><strong>MACD:</strong> Bullish when MACD line crosses above the signal line</li>
+        <li><strong>Moving Average:</strong> Price above MA = uptrend; below MA = downtrend</li>
+        <li><strong>P/E Ratio:</strong> High = expensive; Low = possibly undervalued</li>
+        <li><strong>PEG Ratio:</strong> PEG &lt; 1 = growth is undervalued</li>
+        <li><strong>EPS Surprise %:</strong> Positive surprise = good; negative = concern</li>
+        <li><strong>News Sentiment:</strong> Good tone = investor confidence</li>
+        <li><strong>Analyst Consensus:</strong> More “Buy” = bullish market outlook</li>
+      </ul>
+    </div>
 
     {% if news_headlines %}
       <div class="section">
