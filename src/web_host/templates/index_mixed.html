@@ -110,7 +110,7 @@
 <body>
   <div class="container">
     <button class="toggle-theme" onclick="toggleTheme()">Toggle Theme</button>
-    <h1>Stock Insight Assistant</h1>
+    <h1>Stock Sensei Agent</h1>
 
     <form method="POST">
       <input type="text" name="ticker" placeholder="Enter stock ticker (e.g. AAPL)" required>
@@ -143,32 +143,6 @@
       </div>
     {% endif %}
 
-    {% if short_term_signals %}
-    <div class="section">
-      <h2>⚡ Short-Term Trading Signals</h2>
-      <ul style="line-height: 1.8;">
-        {% for key, value in short_term_signals.items() %}
-          <li><strong>{{ key }}:</strong> {{ value }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-
-    <!-- 👇 Insert cheat sheet here -->
-    <div class="section">
-      <h2>📚 Stock Metrics Cheat Sheet</h2>
-      <ul style="line-height: 1.8;">
-        <li><strong>RSI (Relative Strength Index):</strong> Over 70 = overbought (🔻); Under 30 = oversold (🔺)</li>
-        <li><strong>MACD:</strong> Bullish when MACD line crosses above the signal line</li>
-        <li><strong>Moving Average:</strong> Price above MA = uptrend; below MA = downtrend</li>
-        <li><strong>P/E Ratio:</strong> High = expensive; Low = possibly undervalued</li>
-        <li><strong>PEG Ratio:</strong> PEG &lt; 1 = growth is undervalued</li>
-        <li><strong>EPS Surprise %:</strong> Positive surprise = good; negative = concern</li>
-        <li><strong>News Sentiment:</strong> Good tone = investor confidence</li>
-        <li><strong>Analyst Consensus:</strong> More “Buy” = bullish market outlook</li>
-      </ul>
-    </div>
-
     {% if news_headlines %}
       <div class="section">
         <h2>📰 News & Sentiment</h2>
@@ -177,18 +151,29 @@
             <li>{{ headline }}</li>
           {% endfor %}
         </ul>
-        <div class="preformatted"><strong>Sentiment Summary:</strong> {{ news_sentiment }}</div>
+        <div class="preformatted">{{ news_sentiment|safe }}</div>
       </div>
     {% endif %}
 
-    {% if earnings_digest %}
+    {% if earnings_info %}
       <div class="section">
-        <h2>📆 Earnings Report Digest</h2>
-        <div class="preformatted">{{ earnings_digest }}</div>
+        <h2>🔎 Earnings Summary</h2>
+        <ul style="line-height: 1.8;">
+          <li><strong>Latest Earnings Date:</strong> {{ earnings_info.latest_date }}</li>
+          <li><strong>Expected EPS:</strong> {{ earnings_info.expected_eps }}</li>
+          <li><strong>Actual EPS:</strong> {{ earnings_info.actual_eps }}</li>
+          <li><strong>Surprise:</strong> {{ earnings_info.surprise }}</li>
+          <li><strong>Next Earnings Date:</strong> {{ earnings_info.next_earnings }}</li>
+        </ul>
       </div>
-    {% endif %}
-  </div>
 
+      {% if earnings_digest %}
+        <div class="section">
+          <h2>📆 Earnings Report Digest</h2>
+          <div class="preformatted">{{ earnings_digest|safe }}</div>
+        </div>
+      {% endif %}
+    {% endif %}
   <script>
     function toggleTheme() {
       document.body.classList.toggle("dark");

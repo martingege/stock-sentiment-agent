@@ -57,11 +57,11 @@ def gpt_explanation(ticker, current_price, moving_avg, rsi, latest_volume, avg_v
         f"- 10-Day Average Volume: {avg_volume:.0f}\n"
         f"- Recommendation based on short-term technical indicators: {recommendation}\n"
         f"- Confidence Score: {confidence_score}%\n\n"
-        f"Organize your explanation clearly using basic HTML tags only (<h2>, <p>, <ul>, <li>). "
+        f"Organize your explanation clearly using basic HTML tags only (<h3>, <p>, <ul>, <li>). "
         f"Structure your output like this:\n"
-        f"1. <h2>Overview</h2> – Introduce the company briefly.\n"
-        f"2. <h2>Current Technical Overview</h2> – Explain price vs moving average, RSI, and volume trends.\n"
-        f"3. <h2>Recommendation and Confidence</h2> – Explain the recommendation (BUY/SELL/HOLD) and what the confidence score implies.\n\n"
+        f"1. <h3>Overview</h3> – Introduce the company briefly.\n"
+        f"2. <h3>Current Technical Overview</h3> – Explain price vs moving average, RSI, and volume trends.\n"
+        f"3. <h3>Recommendation and Confidence</h3> – Explain the recommendation (BUY/SELL/HOLD) and what the confidence score implies.\n\n"
         f"Do NOT include any <html>, <head>, or <body> tags. Keep it clean for embedding."
     )
 
@@ -103,8 +103,16 @@ def analyze_news_sentiment(headlines):
 
     prompt = (
         "You are a financial assistant. Analyze the overall sentiment (positive, negative, or neutral) "
-        "of the following news headlines about a stock and provide a one-paragraph summary:\n\n"
-        + "\n".join(f"- {h}" for h in headlines)
+        "of the following news headlines about a stock and provide a structured HTML explanation.\n\n"
+        "Use only basic HTML tags like <h3>, <p>, <ul>, and <li>.\n\n"
+        "Structure the output as:\n"
+        "1. <h3>Overview</h3> – Summarize the overall news tone and themes.\n"
+        "2. <h3>Sentiment Summary</h3> – Was the sentiment mostly positive, negative, or neutral?\n"
+        "3. <h3>Recommendation</h3> – Based on the news, should the user consider BUY, SELL, or HOLD? "
+        "Include a confidence score (high/medium/low) and a brief reasoning.\n\n"
+        "Do not include any <html>, <head>, or <body> tags.\n\n"
+        "News Headlines:\n" +
+        "\n".join(f"- {h}" for h in headlines)
     )
 
     try:
@@ -167,11 +175,11 @@ def generate_earnings_digest(ticker, earnings_info):
         f"- Actual EPS: {earnings_info['actual_eps']}\n"
         f"- Surprise: {earnings_info['surprise']:.2f}\n"
         f"- Next earnings date: {earnings_info['next_earnings']}\n\n"
-        f"Organize the explanation using simple HTML tags only (<h2>, <p>, <ul>, <li>). "
+        f"Organize the explanation using simple HTML tags only (<h3>, <p>, <ul>, <li>). "
         f"Structure the response into these sections:\n"
-        f"1. <h2>Summary</h2> – What happened in this earnings report.\n"
-        f"2. <h2>Impact on Stock</h2> – How such earnings surprises usually affect the stock.\n"
-        f"3. <h2>Recommendation</h2> – Should the user consider Buy, Hold, or Sell based on this report (explain simply)?\n\n"
+        f"1. <h3>Summary</h3> – What happened in this earnings report.\n"
+        f"2. <h3>Impact on Stock</h3> – How such earnings surprises usually affect the stock.\n"
+        f"3. <h3>Recommendation</h3> – Should the user consider Buy, Hold, or Sell based on this report (explain simply)?\n\n"
         f"Do not include any <html>, <head>, or <body> tags."
     )
 
